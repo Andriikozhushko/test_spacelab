@@ -2,93 +2,45 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 
-enum ConsoleColor {
-  black,
-  red,
-  green,
-  yellow,
-  blue,
-  magenta,
-  cyan,
-  white,
-  brightBlack,
-  brightRed,
-  brightGreen,
-  brightYellow,
-  brightBlue,
-  brightMagenta,
-  brightCyan,
-  brightWhite,
-}
+enum ConsoleColor { red, green, yellow, blue, magenta, cyan, white }
 
 void printColored(String message, ConsoleColor color) {
-  String ansiColorCode = '0';
-
   switch (color) {
-    case ConsoleColor.black:
-      ansiColorCode = '30';
-      break;
     case ConsoleColor.red:
-      ansiColorCode = '31';
+      print('\u001b[31m$message\u001b[0m'); // Red
       break;
     case ConsoleColor.green:
-      ansiColorCode = '32';
+      print('\u001b[32m$message\u001b[0m'); // Green
       break;
     case ConsoleColor.yellow:
-      ansiColorCode = '33';
+      print('\u001b[33m$message\u001b[0m'); // Yellow
       break;
     case ConsoleColor.blue:
-      ansiColorCode = '34';
+      print('\u001b[34m$message\u001b[0m'); // Blue
       break;
     case ConsoleColor.magenta:
-      ansiColorCode = '35';
+      print('\u001b[35m$message\u001b[0m'); // Magenta
       break;
     case ConsoleColor.cyan:
-      ansiColorCode = '36';
+      print('\u001b[36m$message\u001b[0m'); // Cyan
       break;
     case ConsoleColor.white:
-      ansiColorCode = '37';
-      break;
-    case ConsoleColor.brightBlack:
-      ansiColorCode = '90';
-      break;
-    case ConsoleColor.brightRed:
-      ansiColorCode = '91';
-      break;
-    case ConsoleColor.brightGreen:
-      ansiColorCode = '92';
-      break;
-    case ConsoleColor.brightYellow:
-      ansiColorCode = '93';
-      break;
-    case ConsoleColor.brightBlue:
-      ansiColorCode = '94';
-      break;
-    case ConsoleColor.brightMagenta:
-      ansiColorCode = '95';
-      break;
-    case ConsoleColor.brightCyan:
-      ansiColorCode = '96';
-      break;
-    case ConsoleColor.brightWhite:
-      ansiColorCode = '97';
+      print('\u001b[37m$message\u001b[0m'); // White
       break;
   }
-
-  print('\u001b[${ansiColorCode}m$message\u001b[0m');
 }
 
 Future<void> main() async {
-  printColored('Привет! Введите команду (translate, detect, end):', ConsoleColor.brightCyan);
+  print('Привіт! Введи команду (translate, detect, end):');
 
   while (true) {
     String? command = stdin.readLineSync();
 
     if (command == 'end') {
-      printColored('Приложение завершено.', ConsoleColor.brightGreen);
+      printColored('Додаток завершено.', ConsoleColor.green);
       break;
     } else if (command == 'translate' || command == 'detect') {
-      printColored('Введите текст:', ConsoleColor.brightYellow);
+      print('Введіть текст:');
       String? text = stdin.readLineSync();
 
       if (text != null && text.isNotEmpty) {
@@ -98,13 +50,13 @@ Future<void> main() async {
           await detectLanguage(text);
         }
       } else {
-        printColored('Ошибка: Введенный текст не может быть null или пустым.', ConsoleColor.brightRed);
+        printColored('Помилка: Введений текст не може бути пустим.', ConsoleColor.red);
       }
     } else {
-      printColored('Неверная команда. Пожалуйста, введите translate, detect или end.', ConsoleColor.brightRed);
+      printColored('Неправильна команда. Введіть translate, detect або end.', ConsoleColor.red);
     }
 
-    printColored('Введите следующую команду:', ConsoleColor.brightCyan);
+    print('Введіть наступну команду:');
   }
 }
 
@@ -121,7 +73,7 @@ Future<void> translateText(String text) async {
   final Map<String, dynamic> data = {
     'text': text,
     'source': 'en',
-    'target': 'ru',
+    'target': 'uk',
   };
 
   try {
@@ -134,13 +86,13 @@ Future<void> translateText(String text) async {
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseBody = jsonDecode(utf8.decode(response.bodyBytes));
       final String translation = responseBody['translations']['translation'] ?? 'Translation not available';
-      printColored('Результат перевода: $translation', ConsoleColor.brightBlue);
+      printColored('Результат перекладу: $translation', ConsoleColor.blue);
     } else {
-      printColored('Ошибка запроса с кодом: ${response.statusCode}', ConsoleColor.brightRed);
-      printColored('Текст ошибки: ${response.body}', ConsoleColor.brightRed);
+      printColored('Помилка запиту з кодом: ${response.statusCode}', ConsoleColor.red);
+      printColored('Текст помилки: ${response.body}', ConsoleColor.red);
     }
   } catch (e) {
-    printColored('Произошла ошибка при выполнении запроса: $e', ConsoleColor.brightRed);
+    printColored('Сталася помилка при виконанні запиту: $e', ConsoleColor.red);
   }
 }
 
@@ -168,12 +120,12 @@ Future<void> detectLanguage(String text) async {
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseBody = jsonDecode(utf8.decode(response.bodyBytes));
       final String language = responseBody['language_detection']['language'] ?? 'Language not detected';
-      printColored('Определенный язык: $language', ConsoleColor.brightGreen);
+      printColored('Визначенна мова: $language', ConsoleColor.green);
     } else {
-      printColored('Ошибка запроса с кодом: ${response.statusCode}', ConsoleColor.brightRed);
-      printColored('Текст ошибки: ${response.body}', ConsoleColor.brightRed);
+      printColored('Помилка запиту з кодом: ${response.statusCode}', ConsoleColor.red);
+      printColored('Текст помилки: ${response.body}', ConsoleColor.red);
     }
   } catch (e) {
-    printColored('Произошла ошибка при выполнении запроса: $e', ConsoleColor.brightRed);
+    printColored('Сталася помилка при виконанні запиту: $e', ConsoleColor.red);
   }
 }
